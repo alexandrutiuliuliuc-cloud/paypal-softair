@@ -1,0 +1,216 @@
+<!doctype html>
+
+<html class="no-js" lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, height=device-height, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="theme-color" content="{{ settings.accent_color }}">
+
+    <title>{% if page_title == blank %}{{ shop.name }}{% else %}{{ page_title }}{% if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif %}{% endif %}</title>
+
+    {%- if page_description -%}
+      <meta name="description" content="{{ page_description | escape }}">
+    {%- endif -%}
+
+    <link rel="canonical" href="{{ canonical_url }}">
+
+    {%- if settings.favicon -%}
+      <link rel="shortcut icon" href="{{ settings.favicon | img_url: '96x96' }}" type="image/png">
+    {%- endif -%}
+
+    {%- comment -%}Few prefech to increase performance on commonly used third-parties{%- endcomment -%}
+    <link rel="preload" as="style" href="{{ 'theme.css' | asset_url }}">
+    <link rel="preload" as="script" href="{{ 'theme.js' | asset_url }}">
+    <link rel="preconnect" href="https://cdn.shopify.com">
+    <link rel="preconnect" href="https://fonts.shopifycdn.com">
+    <link rel="dns-prefetch" href="https://productreviews.shopifycdn.com">
+    <link rel="dns-prefetch" href="https://ajax.googleapis.com">
+    <link rel="dns-prefetch" href="https://maps.googleapis.com">
+    <link rel="dns-prefetch" href="https://maps.gstatic.com">
+
+    {% render 'social-meta-tags' %}
+    {% render 'css-variables' %}
+
+
+    {{ content_for_header }}
+
+    <link rel="stylesheet" href="{{ 'theme.css' | asset_url }}">
+    <link rel="stylesheet" href="{{ 'paypal-fee-styles.css' | asset_url }}">
+
+    {% render 'microdata-schema' %}
+
+    <script>
+      // This allows to expose several variables to the global scope, to be used in scripts
+      window.theme = {
+        pageType: {{ request.page_type | json }},
+        cartCount: {% assign realCount = 0 %}{% for item in cart.items %}{% unless item.sku == 'PAYPAL-FEE-3-5' or item.variant_id == 52038356861271 %}{% assign realCount = realCount | plus: item.quantity %}{% endunless %}{% endfor %}{{ realCount }},
+        moneyFormat: {{ shop.money_format | json }},
+        moneyWithCurrencyFormat: {{ shop.money_with_currency_format | json }},
+        currencyCodeEnabled: {{ settings.currency_code_enabled | json }},
+        showDiscount: {{ settings.show_discount | json }},
+        discountMode: {{ settings.discount_mode | json }},
+        cartType: {{ settings.cart_type | json }}
+      };
+
+      window.routes = {
+        rootUrl: {{ routes.root_url | json }},
+        rootUrlWithoutSlash: {% if routes.root_url == '/' %}''{% else %}{{ routes.root_url | json }}{% endif %},
+        cartUrl: {{ routes.cart_url | json }},
+        cartAddUrl: {{ routes.cart_add_url | json }},
+        cartChangeUrl: {{ routes.cart_change_url | json }},
+        searchUrl: {{ routes.search_url | json }},
+        productRecommendationsUrl: {{ routes.product_recommendations_url | json }}
+      };
+
+      window.languages = {
+        productRegularPrice: {{ 'product.general.regular_price' | t | json }},
+        productSalePrice: {{ 'product.general.sale_price' | t | json }},
+        collectionOnSaleLabel: {{ 'collection.product.discount_html' | t | json }},
+        productFormUnavailable: {{ 'product.form.unavailable' | t | json }},
+        productFormAddToCart: {{ 'product.form.add_to_cart' | t | json }},
+        productFormPreOrder: {{ 'product.form.pre_order' | t | json }},
+        productFormSoldOut: {{ 'product.form.sold_out' | t | json }},
+        productAdded: {{ 'product.form.added' | t | json }},
+        productAddedShort: {{ 'product.form.added_short' | t | json }},
+        shippingEstimatorNoResults: {{ 'cart.shipping_estimator.no_results_title' | t | json }},
+        shippingEstimatorOneResult: {{ 'cart.shipping_estimator.one_result_title' | t | json }},
+        shippingEstimatorMultipleResults: {{ 'cart.shipping_estimator.multiple_results_title' | t | json }},
+        shippingEstimatorErrors: {{ 'cart.shipping_estimator.errors' | t | json }}
+      };
+
+      document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
+
+      // SOLUZIONE: Nascondi badge durante cambio, mostra solo valore corretto
+      (function() {
+        const PAYPAL_SKU = 'PAYPAL-FEE-3-5';
+        const PAYPAL_VARIANT_ID = 52038356861271;
+        let isFixing = false;
+        
+        // Calcola count reale e aggiorna badge
+        function fixBadge() {
+          if (isFixing) return;
+          isFixing = true;
+          
+          fetch('/cart.js')
+            .then(function(res) { return res.json(); })
+            .then(function(cart) {
+              let rc = 0;
+              cart.items.forEach(function(item) {
+                if (item.sku !== PAYPAL_SKU && item.variant_id !== PAYPAL_VARIANT_ID) {
+                  rc += item.quantity;
+                }
+              });
+              
+              // Aggiorna TUTTI i badge
+              const badges = document.querySelectorAll('.header__cart-count, [data-cart-count], .cart-count');
+              badges.forEach(function(badge) {
+                badge.textContent = rc;
+                badge.style.visibility = 'visible';
+              });
+              
+              // Aggiorna window.theme.cartCount
+              if (window.theme) window.theme.cartCount = rc;
+              
+              isFixing = false;
+            })
+            .catch(function() {
+              // In caso di errore, mostra comunque
+              const badges = document.querySelectorAll('.header__cart-count, [data-cart-count], .cart-count');
+              badges.forEach(function(badge) {
+                badge.style.visibility = 'visible';
+              });
+              isFixing = false;
+            });
+        }
+        
+        // Osserva il badge e NASCONDI IMMEDIATAMENTE appena cambia
+        const observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList' || mutation.type === 'characterData') {
+              const badge = mutation.target.nodeType === Node.TEXT_NODE ? mutation.target.parentElement : mutation.target;
+              if (badge && badge.classList && badge.classList.contains('header__cart-count')) {
+                const val = parseInt(badge.textContent) || 0;
+                // Se mostra valore > 100 (probabilmente sbagliato), nascondi e correggi
+                if (val > 100) {
+                  badge.style.visibility = 'hidden';
+                  fixBadge();
+                }
+              }
+            }
+          });
+        });
+        
+        // Inizializza subito (quando DOM è pronto)
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', fixBadge);
+        } else {
+          fixBadge();
+        }
+        
+        // Osserva i badge dopo un breve delay per assicurarsi che esistano
+        setTimeout(function() {
+          const badges = document.querySelectorAll('.header__cart-count');
+          badges.forEach(function(badge) {
+            observer.observe(badge, { childList: true, characterData: true, subtree: true });
+          });
+        }, 100);
+        
+        // Esegui anche agli eventi
+        document.addEventListener('cart:updated', fixBadge);
+        document.addEventListener('product:added', function() {
+          setTimeout(fixBadge, 50);
+        });
+      })();
+    </script>
+
+    {%- if request.page_type == 'customers/addresses' -%}
+      <script src="{{ 'shopify_common.js' | shopify_asset_url }}" defer></script>
+      <script src="{{ 'customer_area.js' | shopify_asset_url }}" defer></script>
+    {%- endif -%}
+
+    <script src="{{ 'theme.js' | asset_url }}" defer></script>
+    <script src="{{ 'custom.js' | asset_url }}" defer></script>
+    <script src="{{ 'paypal-fee-handler.js' | asset_url }}" defer></script>
+
+    {%- if request.page_type != 'cart' -%}
+      <script>
+        (function () {
+          window.onpageshow = function() {
+            // We force re-freshing the cart content onpageshow, as most browsers will serve a cache copy when hitting the
+            // back button, which cause staled data
+            document.documentElement.dispatchEvent(new CustomEvent('cart:refresh', {
+              bubbles: true,
+              detail: {scrollToTop: false}
+            }));
+          };
+        })();
+      </script>
+    {%- endif -%}
+  </head>
+
+  <body class="warehouse--v4 {% if settings.animation_image_zoom %}features--animate-zoom{% endif%} template-{{ request.page_type | handle }} {% if request.page_type contains '/' %}template-{{ request.page_type | split: '/' | last | handle }}{% endif %}" data-instant-intensity="viewport">
+    {%- comment -%}Common SVG definitions that we are re-using in several places{%- endcomment -%}
+    <svg class="visually-hidden">
+      <linearGradient id="rating-star-gradient-half">
+        <stop offset="50%" stop-color="var(--product-review-star-color)" />
+        <stop offset="50%" stop-color="rgba(var(--text-color-rgb), .4)" stop-opacity="0.4" />
+      </linearGradient>
+    </svg>
+
+    <a href="#main" class="visually-hidden skip-to-content">{{ 'general.accessibility.skip_to_content' | t }}</a>
+    <span class="loading-bar"></span>
+
+    {%- sections 'header-group' -%}
+    {%- sections 'overlay-group' -%}
+
+    <main id="main" role="main">
+      {{ content_for_layout }}
+    </main>
+
+    {%- sections 'footer-group' -%}
+
+    <ul hidden>
+      <li id="a11y-new-window-message">{{ 'general.accessibility.new_window' | t }}</li>
+    </ul>
+  </body>
+</html>

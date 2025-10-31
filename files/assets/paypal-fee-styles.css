@@ -1,0 +1,476 @@
+/**
+ * PAYPAL FEE STYLES
+ * Styling per gestione commissione PayPal 3.5%
+ */
+
+/* ========================================
+   BANNER INFORMATIVO PAGINA PRODOTTO
+   ======================================== */
+
+.paypal-info-product-banner {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  padding: 16px 18px;
+  border-radius: 8px;
+  margin: 20px 0;
+  border-left: 4px solid #2196f3;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.1);
+}
+
+.paypal-info-product-banner__content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.paypal-info-product-banner__icon {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  background: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  padding: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.paypal-info-product-banner__icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.paypal-info-product-banner__text {
+  flex: 1;
+}
+
+.paypal-info-product-banner__title {
+  color: #1565c0;
+  font-size: 1.05em;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+}
+
+.paypal-info-product-banner__description {
+  margin: 0;
+  color: #424242;
+  font-size: 0.95em;
+  line-height: 1.5;
+}
+
+.paypal-info-product-banner__small {
+  color: #616161;
+  font-size: 0.85em;
+  margin-top: 4px;
+  display: block;
+}
+
+/* ========================================
+   WARNING BANNER CARRELLO
+   ======================================== */
+
+.paypal-warning-banner {
+  background: #e3f2fd;
+  border-left: 4px solid #2196f3;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(33, 150, 243, 0.08);
+}
+
+.paypal-warning-banner__content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.paypal-warning-banner__icon {
+  flex-shrink: 0;
+  color: #2196f3;
+  font-size: 24px;
+}
+
+.paypal-warning-banner__text {
+  flex: 1;
+}
+
+.paypal-warning-banner__title {
+  color: #1976d2;
+  font-weight: 700;
+  font-size: 1em;
+  margin: 0 0 8px 0;
+}
+
+.paypal-warning-banner__description {
+  margin: 0;
+  color: #424242;
+  line-height: 1.5;
+  font-size: 0.95em;
+}
+
+.paypal-warning-banner__alert {
+  color: #d32f2f;
+  font-weight: 700;
+  font-size: 0.9em;
+  margin-top: 6px;
+  display: block;
+}
+
+/* ========================================
+   CHECKBOX OPTION
+   ======================================== */
+
+.paypal-fee-option {
+  padding: 16px 18px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+  margin-bottom: 20px;
+  transition: all 0.2s ease;
+}
+
+.paypal-fee-option:hover {
+  border-color: #2196f3;
+  background: #fafafa;
+}
+
+.paypal-fee-option__label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  margin: 0;
+}
+
+.paypal-fee-option__checkbox {
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.paypal-fee-option__text {
+  flex: 1;
+}
+
+.paypal-fee-option__title {
+  font-weight: 700;
+  color: #212121;
+  font-size: 1em;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.paypal-fee-option__description {
+  color: #666;
+  font-size: 0.9em;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Stato checked */
+.paypal-fee-option__checkbox:checked + .paypal-fee-option__text .paypal-fee-option__title {
+  color: #0070ba;
+}
+
+/* ========================================
+   LINE ITEM COMMISSIONE NEL CARRELLO
+   ======================================== */
+
+/* Evidenziazione visiva per la commissione PayPal - SENZA position che causava problemi */
+.line-item--paypal-fee {
+  background: linear-gradient(to right, #e3f2fd 0%, #f5f5f5 100%) !important;
+  border-left: 4px solid #2196f3 !important;
+}
+
+/* Pulsanti quantità disabilitati per la commissione PayPal */
+.line-item--paypal-fee .quantity-selector__button[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.line-item--paypal-fee .quantity-selector__value[disabled] {
+  cursor: not-allowed;
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+/* Tutto il resto (layout, sizing, spacing) è ereditato da line-item--stack */
+
+/* ========================================
+   MODAL CONFERMA RIMOZIONE COMMISSIONE
+   ======================================== */
+
+.paypal-fee-modal-overlay,
+.paypal-checkout-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.paypal-fee-modal-overlay.active,
+.paypal-checkout-confirm-overlay.active {
+  display: flex;
+}
+
+.paypal-fee-modal {
+  background: white;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+  padding: 0;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.paypal-fee-modal__header {
+  padding: 24px 24px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.paypal-fee-modal__icon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.paypal-fee-modal__title {
+  font-size: 1.3em;
+  font-weight: 700;
+  color: #d32f2f;
+  margin: 0;
+}
+
+.paypal-fee-modal__body {
+  padding: 24px;
+}
+
+.paypal-fee-modal__message {
+  font-size: 1em;
+  line-height: 1.6;
+  color: #424242;
+  margin: 0 0 16px 0;
+}
+
+.paypal-fee-modal__warning {
+  background: #fff3cd;
+  border-left: 4px solid #ff9800;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-top: 16px;
+}
+
+.paypal-fee-modal__warning-text {
+  font-size: 0.95em;
+  font-weight: 600;
+  color: #856404;
+  margin: 0;
+}
+
+.paypal-fee-modal__footer {
+  padding: 16px 24px 24px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.paypal-fee-modal__button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.95em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.paypal-fee-modal__button--cancel {
+  background: #f5f5f5;
+  color: #424242;
+}
+
+.paypal-fee-modal__button--cancel:hover {
+  background: #e0e0e0;
+}
+
+.paypal-fee-modal__button--confirm {
+  background: #d32f2f;
+  color: white;
+}
+
+.paypal-fee-modal__button--confirm:hover {
+  background: #b71c1c;
+}
+
+@media (max-width: 640px) {
+  .paypal-fee-modal {
+    max-width: 95%;
+  }
+
+  .paypal-fee-modal__header {
+    padding: 20px 20px 16px;
+  }
+
+  .paypal-fee-modal__body {
+    padding: 20px;
+  }
+
+  .paypal-fee-modal__footer {
+    padding: 16px 20px 20px;
+    flex-direction: column-reverse;
+  }
+
+  .paypal-fee-modal__button {
+    width: 100%;
+  }
+}
+
+/* ========================================
+   MINI-CART (DRAWER) SPECIFICO
+   ======================================== */
+
+.mini-cart .paypal-warning-banner {
+  margin: 0 0 16px 0;
+}
+
+.mini-cart .paypal-fee-option {
+  margin: 0 0 16px 0;
+}
+
+/* Style simile al carrello principale */
+.mini-cart__line-item--paypal-fee {
+  background: linear-gradient(to right, #e3f2fd 0%, #f5f5f5 100%) !important;
+  border-left: 4px solid #2196f3;
+  position: relative;
+}
+
+/* Icona e percentuale nel titolo */
+.mini-cart__line-item--paypal-fee .mini-cart__product-name::before {
+  content: "💳 ";
+}
+
+.mini-cart__line-item--paypal-fee .mini-cart__product-name::after {
+  content: " (3.5%)";
+  font-weight: normal;
+  color: #666;
+  font-size: 0.9em;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 768px) {
+  .paypal-info-product-banner {
+    padding: 14px 16px;
+  }
+
+  .paypal-info-product-banner__content {
+    gap: 12px;
+  }
+
+  .paypal-info-product-banner__icon {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+    padding: 6px;
+  }
+
+  .paypal-info-product-banner__title {
+    font-size: 1em;
+  }
+
+  .paypal-info-product-banner__description {
+    font-size: 0.9em;
+  }
+
+  .paypal-warning-banner {
+    padding: 14px 16px;
+  }
+
+  .paypal-fee-option {
+    padding: 14px 16px;
+  }
+
+  .paypal-fee-option__checkbox {
+    width: 20px;
+    height: 20px;
+  }
+
+  .paypal-fee-line-item-wrapper {
+    gap: 12px;
+    padding: 12px 14px;
+  }
+
+  .paypal-fee-line-item__icon {
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+  }
+}
+
+/* ========================================
+   ANIMAZIONI
+   ======================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.paypal-info-product-banner,
+.paypal-warning-banner,
+.paypal-fee-option {
+  animation: fadeIn 0.3s ease;
+}
+
+/* ========================================
+   LOADER CUSTOM
+   ======================================== */
+
+#paypal-fee-loader {
+  animation: fadeIn 0.2s ease;
+}
+
+/* ========================================
+   PRINT (nasconde elementi non necessari)
+   ======================================== */
+
+@media print {
+  .paypal-info-product-banner,
+  .paypal-warning-banner,
+  .paypal-fee-option {
+    display: none;
+  }
+}
+

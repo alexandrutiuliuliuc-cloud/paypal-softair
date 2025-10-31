@@ -1,0 +1,122 @@
+{%- assign recipient_feature_active = false -%}
+
+{%- if product.gift_card? and block.settings.show_gift_card_recipient -%}
+  {%- assign recipient_feature_active = true -%}
+{%- endif -%}
+
+<div class="product-form__buy-buttons" {{ block.shopify_attributes }}>
+  {%- if recipient_feature_active -%}
+    <gift-card-recipient class="gift-card-recipient">
+      <div class="form__input-wrapper form__input-wrapper--labelled">
+        <div class="checkbox-wrapper">
+          <input type="checkbox" class="checkbox" name="properties[__shopify_send_gift_card_to_recipient]" id="product-{{ section.id }}-{{ product.id }}-send-gift-card-to-recipient">
+          {% render 'icon', icon: 'check' %}
+        </div>
+
+        <label for="product-{{ section.id }}-{{ product.id }}-send-gift-card-to-recipient">{{ 'gift_card.recipient.checkbox' | t }}</label>
+      </div>
+
+      <div class="gift-card-recipient__fields js:hidden">
+        <div class="form__input-wrapper form__input-wrapper--labelled">
+          <input id="product-{{ section.id }}-{{ product.id }}-recipient-email" type="email" class="form__field form__field--text" name="properties[Recipient email]" maxlength="138" required value="{{ form.email }}">
+          <label for="product-{{ section.id }}-{{ product.id }}-recipient-email" class="form__floating-label">{{ 'gift_card.recipient.email_label' | t }}</label>
+        </div>
+
+        <div class="form__input-wrapper form__input-wrapper--labelled">
+          <input id="product-{{ section.id }}-{{ product.id }}-recipient-name" type="text" class="form__field form__field--text" name="properties[Recipient name]" value="{{ form.name }}">
+          <label for="product-{{ section.id }}-{{ product.id }}-recipient-name" class="form__floating-label">{{ 'gift_card.recipient.name_label' | t }}</label>
+        </div>
+
+        <div class="form__input-wrapper form__input-wrapper--labelled">
+          <input type="hidden" name="properties[__shopify_offset]" value="" disabled>
+          <input id="product-{{ section.id }}-{{ product.id }}-send-on" type="date" class="form__field form__field--date is-filled" pattern="\d{4}-\d{2}-\d{2}" name="properties[Send on]" value="{{ form.send_on }}">
+          <label for="product-{{ section.id }}-{{ product.id }}-send-on" class="form__floating-label">{{ 'gift_card.recipient.send_on_label' | t }}</label>
+        </div>
+
+        <div class="form__input-wrapper form__input-wrapper--labelled">
+          <textarea id="product-{{ section.id }}-{{ product.id }}-recipient-message" rows="4" maxlength="200" class="form__field form__field--textarea" name="properties[Message]">{{ form.message }}</textarea>
+          <label for="product-{{ section.id }}-{{ product.id }}-recipient-message" class="form__floating-label">{{ 'gift_card.recipient.message_label' | t }}</label>
+        </div>
+      </div>
+    </gift-card-recipient>
+  {%- endif -%}
+
+  {%- comment -%}PAYPAL INFO BANNER - Sopra pulsanti acquisto{%- endcomment -%}
+  {%- assign paypal_fee_variant = all_products['commissione-paypal-3-5'].variants.first -%}
+  <div class="paypal-info-product-banner">
+    <div class="paypal-info-product-banner__content">
+      <div class="paypal-info-product-banner__icon">
+        {%- if paypal_fee_variant.image -%}
+          <img src="{{ paypal_fee_variant.image | image_url: width: 60 }}" alt="PayPal" loading="lazy">
+        {%- elsif all_products['commissione-paypal-3-5'].featured_image -%}
+          <img src="{{ all_products['commissione-paypal-3-5'].featured_image | image_url: width: 60 }}" alt="PayPal" loading="lazy">
+        {%- else -%}
+          💳
+        {%- endif -%}
+      </div>
+      <div class="paypal-info-product-banner__text">
+        <h3 class="paypal-info-product-banner__title">⚠️ Pagamento PayPal</h3>
+        <p class="paypal-info-product-banner__description">
+          <strong>Se scegli PayPal come metodo di pagamento, DEVI aggiungere la commissione del 3.5% al carrello.</strong>
+          <br>
+          <span style="color: #d32f2f; font-weight: 600;">❌ Se non aggiungi la commissione, l'ordine NON verrà processato.</span>
+          <br>
+          <span class="paypal-info-product-banner__small">✅ Per bonifico o carta di credito non è necessaria alcuna commissione.</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  {%- comment -%}CHECKBOX PAYPAL - Sopra pulsante Add to Cart{%- endcomment -%}
+  <div class="paypal-fee-option paypal-fee-option--product">
+    <label class="paypal-fee-option__label" for="paypal-fee-checkbox-product">
+      <input 
+        type="checkbox" 
+        id="paypal-fee-checkbox-product" 
+        class="paypal-fee-option__checkbox"
+      >
+      <div class="paypal-fee-option__text">
+        <span class="paypal-fee-option__title">💳 Pagherò con PayPal</span>
+        <p class="paypal-fee-option__description">
+          Seleziona questa opzione per aggiungere automaticamente la commissione del 3.5% al carrello
+        </p>
+      </div>
+    </label>
+  </div>
+
+  <div class="product-form__payment-container">
+    {%- if product.template_suffix != 'contact' -%}
+      {%- if product.selected_or_first_available_variant == nil -%}
+        <button type="button" class="product-form__add-button button button--disabled" disabled>{{ 'product.form.unavailable' | t }}</button>
+      {%- elsif product.selected_or_first_available_variant.available -%}
+        {%- if product.template_suffix == 'pre-order' -%}
+          <buy-button class="buy-button">
+            <button type="submit" class="product-form__add-button button button--primary">{{ 'product.form.pre_order' | t }}</button>
+          </buy-button>
+        {%- else -%}
+          <buy-button class="buy-button">
+            <button type="submit" class="product-form__add-button button button--primary">{{ 'product.form.add_to_cart' | t }}</button>
+          </buy-button>
+        {%- endif -%}
+      {%- else -%}
+        <button type="submit" class="product-form__add-button button button--disabled" disabled>{{ 'product.form.sold_out' | t }}</button>
+      {%- endif -%}
+
+      {%- if block.settings.show_payment_button and recipient_feature_active == false and product.template_suffix != 'pre-order' -%}
+        {{ form | payment_button }}
+      {%- endif -%}
+    {%- else -%}
+      <a href="mailto:{{ shop.email }}" class="button button--primary">{{ 'product.form.contact_us' | t }}</a>
+    {%- endif -%}
+
+    {%- if block.settings.show_payment_button -%}
+      {%- unless product.selected_or_first_available_variant.available -%}
+        <style>
+          #shopify-section-{{ section.id }} .shopify-payment-button {
+            display: none;
+          }
+        </style>
+      {%- endunless -%}
+    {%- endif -%}
+  </div>
+</div>
